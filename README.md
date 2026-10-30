@@ -1,34 +1,61 @@
+
 # Network Configuration Automation
+
+A Python-based network automation project that generates Cisco IOS configurations from YAML inventory files using Jinja2 templates. It includes a Flask web application, REST API, inventory validation, automated testing, and optional SSH deployment using Netmiko.
 
 ## Project Overview
 
-A Python-based network configuration automation tool that generates Cisco IOS configurations using YAML inventory files and Jinja2 templates. The application provides a Flask web interface and REST API to view generated configurations, with optional SSH-based deployment using Netmiko.
+This project demonstrates how network configuration tasks can be automated using Python. Instead of manually writing repetitive Cisco switch configurations, users can define device details, VLANs, and interfaces in a YAML inventory file and generate configurations automatically.
 
-## Features
+## Key Features
 
 - YAML-based network device inventory
 - Automated Cisco IOS configuration generation
-- Jinja2 configuration templates
-- Flask web interface
-- REST API for device and configuration retrieval
-- Netmiko SSH deployment support
-- Safe dry-run mode by default
-- Automated unit testing with Python unittest
+- Jinja2-based configuration templates
+- Inventory validation for device names, hostnames, VLAN IDs, and interfaces
+- Flask web application for viewing configurations
+- REST API for retrieving device information and configurations
+- Netmiko-based SSH deployment support
+- Dry-run mode enabled by default
+- Explicit confirmation before deployment
+- Automated unit testing using Python unittest
 
 ## Technologies Used
 
-- Python 3.11
-- Flask
-- Jinja2
-- PyYAML
-- Netmiko
-- python-dotenv
+| Technology | Purpose |
+|---|---|
+| Python 3.11 | Core automation logic |
+| PyYAML | Reading YAML inventory |
+| Jinja2 | Cisco configuration templates |
+| Flask | Web application and REST API |
+| Netmiko | SSH-based network device interaction |
+| python-dotenv | Environment variable management |
+| unittest | Automated testing |
 
 ## Project Architecture
 
-YAML Inventory → Python Configuration Generator → Jinja2 Template → Cisco IOS Configuration
-
-Flask provides the web interface and REST API. Netmiko supports optional deployment to authorized network devices.
+```text
+       YAML Inventory
+              |
+              v
+    Inventory Validation
+              |
+              v
+   Python Configuration Generator
+              |
+              v
+       Jinja2 Template
+              |
+              v
+    Generated Cisco IOS Config
+              |
+        +-----+-----+
+        |           |
+        v           v
+   Flask Web     Netmiko
+   Interface     Deployment
+   REST API      (Optional)
+```
 
 ## Project Structure
 
@@ -39,6 +66,7 @@ network-config-automation/
 │   └── cisco_ios.j2
 │
 ├── tests/
+│   ├── test_app.py
 │   └── test_config_generator.py
 │
 ├── app.py
@@ -46,12 +74,24 @@ network-config-automation/
 ├── deploy.py
 ├── inventory.yml
 ├── requirements.txt
+├── .env.example
+├── .gitignore
 └── README.md
 ```
 
 ## Installation
 
-Clone the repository and open the project directory.
+Clone the repository:
+
+```bash
+git clone https://github.com/nithya-ramalingam/network-config-automation.git
+```
+
+Navigate into the project:
+
+```bash
+cd network-config-automation
+```
 
 Create a virtual environment:
 
@@ -71,19 +111,25 @@ Install dependencies:
 python -m pip install -r requirements.txt
 ```
 
-## Generate Configurations
+## Generate Cisco Configurations
+
+Run:
 
 ```bash
 python config_generator.py
 ```
 
-## Run the Web Application
+The application reads the YAML inventory, validates device information, and generates Cisco IOS configuration commands.
+
+## Run the Flask Application
+
+Start the web application:
 
 ```bash
 python app.py
 ```
 
-Open:
+Open the application:
 
 http://127.0.0.1:5000
 
@@ -92,39 +138,86 @@ http://127.0.0.1:5000
 | Endpoint | Description |
 |---|---|
 | `/` | Web interface |
-| `/api/devices` | List available devices |
+| `/api/devices` | Retrieve available devices |
 | `/api/config/SW1` | Retrieve SW1 configuration |
 
-## Run Automated Tests
+Example API request:
+
+```text
+http://127.0.0.1:5000/api/config/SW1
+```
+
+## Automated Testing
+
+Run all tests:
 
 ```bash
 python -m unittest discover -s tests -v
 ```
 
-## Deployment
+The test suite covers:
 
-Dry-run mode (default):
+- Configuration generation
+- Hostname generation
+- VLAN configuration
+- Interface configuration
+- Flask homepage
+- Device API
+- Configuration API
+- Invalid inventory data
+- Duplicate device names
+- Invalid VLAN IDs
+
+**Current test result: 12 tests passing.**
+
+## Optional Network Deployment
+
+The deployment script supports Netmiko-based SSH configuration deployment.
+
+By default, the script runs in dry-run mode:
 
 ```bash
 python deploy.py
 ```
 
-Optional deployment to an authorized lab device:
+For an authorized lab device, optional deployment can be requested using:
 
 ```bash
 python deploy.py --apply
 ```
 
-Deployment requires valid device credentials and explicit confirmation. Never commit credentials or `.env` files to version control.
+The deployment process requires credentials configured through environment variables and explicit confirmation before attempting to connect.
 
-## Safety
+**Important:** Actual SSH deployment has not yet been tested against a physical or virtual network device.
 
-The sample IP address `192.0.2.10` is reserved for documentation and examples. It is not a real switch target. Use only network devices you are authorized to manage.
+## Security and Safety
 
-## Future Improvements
+- Credentials are loaded through environment variables.
+- `.env` files are excluded from Git.
+- Dry-run mode is enabled by default.
+- Deployment requires explicit confirmation.
+- Only deploy to network devices you are authorized to manage.
+- The sample IP `192.0.2.10` is reserved for documentation and is not a real switch.
+
+## Future Enhancements
 
 - Multi-vendor network device support
 - Configuration backup and comparison
-- Configuration validation before deployment
-- Role-based access control
+- Pre-deployment configuration validation
 - Deployment logging and reporting
+- Role-based access control
+- Integration with network monitoring tools
+
+## Author
+
+**Nithya Ramalingam**
+
+Master of Engineering in Internetworking | Network Operations | Python Automation
+
+[GitHub Profile](https://github.com/nithya-ramalingam)
+
+[Project Repository](https://github.com/nithya-ramalingam/network-config-automation)
+
+## Application Screenshot
+
+![Network Configuration Automation Demo](images/network-automation-demo.png)
