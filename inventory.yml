@@ -1,5 +1,7 @@
+
 devices:
   - name: SW1
+    hostname: SW1
     device_type: cisco_ios
     host: 192.0.2.10
     username: admin
@@ -16,9 +18,9 @@ devices:
       - name: GigabitEthernet0/1
         description: User Network
         mode: access
-        vlan: 10
+        access_vlan: 10
 
       - name: GigabitEthernet0/2
         description: Server Network
         mode: access
-        vlan: 20
+        access_vlan: 20

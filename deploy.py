@@ -1,17 +1,18 @@
+
 import argparse
 import os
 
 from dotenv import load_dotenv
 from netmiko import ConnectHandler
 
-from config_generator import generate_all
+from config_generator import generate_all, load_inventory
 
 
 load_dotenv()
 
 
 def deploy_config(device, configuration):
-    """Connect to an authorized network device and deploy configuration."""
+    """Deploy configuration to an authorized network device."""
 
     password = os.getenv("NETWORK_PASSWORD")
     secret = os.getenv("NETWORK_SECRET", "")
@@ -19,16 +20,22 @@ def deploy_config(device, configuration):
     if not password:
         raise ValueError("NETWORK_PASSWORD is missing from the .env file.")
 
+    username = os.getenv("NETWORK_USERNAME") or device.get("username")
+
+    if not username:
+        raise ValueError("Network username is missing.")
+
     connection_details = {
         "device_type": device["device_type"],
         "host": device["host"],
-        "username": os.getenv("NETWORK_USERNAME", device["username"]),
+        "username": username,
         "password": password,
         "secret": secret,
     }
 
     commands = [
-        line for line in configuration.splitlines()
+        line.strip()
+        for line in configuration.splitlines()
         if line.strip() and line.strip().lower() != "end"
     ]
 
@@ -54,37 +61,40 @@ def main():
 
     args = parser.parse_args()
 
-    configurations = generate_all()
+    try:
+        devices = load_inventory()
+        configurations = generate_all()
 
-    for device_name, configuration in configurations.items():
-        device = next(
-            item for item in __import__("config_generator").load_inventory()
-            if item["name"] == device_name
-        )
+        for device in devices:
+            device_name = device["name"]
+            configuration = configurations[device_name]
 
-        print(f"\nConfiguration for {device_name}")
-        print("-" * 50)
-        print(configuration)
+            print(f"\nConfiguration for {device_name}")
+            print("-" * 50)
+            print(configuration)
 
-        if not args.apply:
-            print("\nDRY RUN: No network connection was made.")
-            continue
+            if not args.apply:
+                print("\nDRY RUN: No network connection was made.")
+                continue
 
-        confirmation = input(
-            f"\nType DEPLOY to apply configuration to {device_name}: "
-        )
+            confirmation = input(
+                f"\nType DEPLOY to apply configuration to {device_name}: "
+            )
 
-        if confirmation != "DEPLOY":
-            print("Deployment cancelled.")
-            continue
+            if confirmation != "DEPLOY":
+                print("Deployment cancelled.")
+                continue
 
-        try:
-            result = deploy_config(device, configuration)
-            print("\nDeployment result:")
-            print(result)
+            try:
+                result = deploy_config(device, configuration)
+                print("\nDeployment result:")
+                print(result)
 
-        except Exception as error:
-            print(f"\nDeployment failed: {error}")
+            except Exception as error:
+                print(f"\nDeployment failed: {error}")
+
+    except (ValueError, KeyError, OSError) as error:
+        print(f"\nConfiguration error: {error}")
 
 
 if __name__ == "__main__":

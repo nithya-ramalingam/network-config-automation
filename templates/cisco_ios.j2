@@ -9,7 +9,7 @@ vlan {{ vlan.id }}
 interface {{ interface.name }}
  description {{ interface.description }}
  switchport mode {{ interface.mode }}
- switchport access vlan {{ interface.vlan }}
+ switchport access vlan {{ interface.access_vlan }}
  no shutdown
 {% endfor %}
 
