@@ -1,0 +1,24 @@
+devices:
+  - name: SW1
+    device_type: cisco_ios
+    host: 192.0.2.10
+    username: admin
+    password: ""
+    secret: ""
+
+    vlans:
+      - id: 10
+        name: USERS
+      - id: 20
+        name: SERVERS
+
+    interfaces:
+      - name: GigabitEthernet0/1
+        description: User Network
+        mode: access
+        vlan: 10
+
+      - name: GigabitEthernet0/2
+        description: Server Network
+        mode: access
+        vlan: 20

@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+.venv/
+venv/
+
+# Environment variables and secrets
+.env
+
+# Test and coverage files
+.coverage
+htmlcov/
+
+# VS Code settings
+.vscode/

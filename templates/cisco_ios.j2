@@ -1,0 +1,16 @@
+hostname {{ device.name }}
+
+{% for vlan in device.vlans %}
+vlan {{ vlan.id }}
+ name {{ vlan.name }}
+{% endfor %}
+
+{% for interface in device.interfaces %}
+interface {{ interface.name }}
+ description {{ interface.description }}
+ switchport mode {{ interface.mode }}
+ switchport access vlan {{ interface.vlan }}
+ no shutdown
+{% endfor %}
+
+end
